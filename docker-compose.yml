@@ -1,20 +1,36 @@
 version: '3'
 services:
   nginx:
+    container_name: "nginx"
     build: ./nginx
     volumes:
       - ./website/bedrock:/var/www/html
     ports:
-      - '8080:80'
+        - "80:80"
+    restart: always
     depends_on:
       - php
       - mariadb
+  phpmyadmin:
+    container_name: "phpmyadmin"
+    image: phpmyadmin/phpmyadmin
+    ports:
+        - "8081:80"
+    environment:
+      PMA_HOST: mariadb
+      PMA_USER: root
+      PMA_PASSWORD: mariadb
+    restart: always
+    depends_on:
+      - mariadb
   php:
+    container_name: "php"
     build: ./website
     env_file: ./website/env/.env.dev
     volumes:
       - ./website/bedrock:/var/www/html
   mariadb:
+    container_name: "mariadb"
     image: mariadb
     restart: always
     environment:
@@ -25,11 +41,3 @@ services:
       - ./data:/var/lib/mysql
     ports:
       - 3306:3306
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8000:8080
-    depends_on:
-      - mariadb
-
